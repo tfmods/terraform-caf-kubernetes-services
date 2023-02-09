@@ -1,0 +1,64 @@
+trigger:
+- master
+
+#variables:
+#  global_variable: value    # this is available to all jobs
+
+jobs:
+- job: terraform_deployment
+  pool:
+    vmImage: ubuntu-latest
+  variables:
+    az_region: <region>
+    resource_group_name: <resource-group-name>
+    subscription: <service-connection-auth>
+    key_vault_name: <key-vault-name>
+    sa_prefix: <service-account-name>
+    sa_container_name: <blob-container-name>
+    tfstateFile: terraform.tfstate
+
+  steps:
+  - task: AzureCLI@2
+    inputs:
+      azureSubscription: '<service-connection-auth>' #replace with your 
+      service connection - azure resource manager service principal
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+        az group create -n $(resource_group_name) -l $(az_region)
+        VAULT_ID=$(az keyvault create --name "$(key_vault_name)" --resource-group "$(resource_group_name)" --location "$(az_region)" --query "id" -o tsv)
+        az storage account create --resource-group $(resource_group_name) --name "$(sa_prefix)" --sku Standard_LRS --encryption-services blob
+        az storage container create --name $(sa_container_name) --account-name "$(sa_prefix)" --auth-mode login
+  - task: TerraformInstaller@0
+    displayName: Terraform Installation
+    inputs:
+      terraformVersion: 'latest'
+  - task: TerraformTaskV3@3
+    displayName: Terraform Init
+    inputs:
+      provider: 'azurerm'
+      command: 'init'
+      workingDirectory: '$(System.DefaultWorkingDirectory)/tf-files'
+      backendServiceArm: '<service-connection-auth>'
+      backendAzureRmResourceGroupName: '$(resource_group_name)'
+      backendAzureRmStorageAccountName: '$(sa_prefix)'
+      backendAzureRmContainerName: '$(sa_container_name)'
+      backendAzureRmKey: '$(tfstateFile)'
+
+  - task: TerraformTaskV3@3
+    displayName: Terraform Plan
+    inputs:
+      provider: 'azurerm'
+      command: 'plan'
+      workingDirectory: '$(System.DefaultWorkingDirectory)/tf-files'
+      commandOptions: '-out=tfplan'
+      environmentServiceNameAzureRM: 'akrish-poc-sp'
+
+  - task: TerraformTaskV3@3
+    displayName: Terraform Apply
+    inputs:
+      provider: 'azurerm'
+      command: 'apply'
+      workingDirectory: '$(System.DefaultWorkingDirectory)/tf-files'
+      commandOptions: 'tfplan'
+      environmentServiceNameAzureRM: '<service-connection-auth>'
