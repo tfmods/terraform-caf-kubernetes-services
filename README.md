@@ -379,6 +379,6 @@ Steps:
 * Document your code using `make prepare-readme`;
 * Push and Pull request,
 
-<sub>Questions? let me know: carlos.oliveira@softwareone.com</sub>
+<sub>Questions? let me know: rosthanlinux@outlook.com </sub>
 
 <!-- END_TF_DOCS -->
