@@ -14,7 +14,7 @@ EOF
 
 variable "environment" {
   type        = string
-  default     = "swo"
+  default     = "test"
   description = <<EOF
         3 to 5 letter Abreviation from Client company or project environment
         Example: 
@@ -116,4 +116,49 @@ variable "location" {
             UAE Central               uaecentral           (Middle East) UAE Central
             Brazil Southeast          brazilsoutheast      (South America) Brazil Southeast
 EOF
+}
+
+
+variable "resource_admin" {
+  type        = string
+  default     = "Bruce Wayne"
+  description = <<EOF
+        A system administrator, or sysadmin, or admin is a person who is responsible for the upkeep,
+        configuration, and reliable operation of computer systems, especially multi-user computers, such as servers.
+EOF
+}
+
+variable "costcentre" {
+  type        = string
+  default     = "Gothan"
+  description = <<EOF
+        A cost centre is a department within a business to which costs can be allocated.
+        The term includes departments which do not produce directly but they incur costs to the business,
+        when the manager and employees of the cost centre are not accountable for the profitability and investment decisions of the business but they are responsible for some of its costs.
+EOF
+}
+
+
+variable "departament_principal" {
+  type        = string
+  default     = "Joker"
+  description = <<EOF
+        An IT manager oversees all computer-related tasks, problems, and solutions within a business. Depending on the sector they work in and the organization they work for, they may also be referred to as IT directors or computer and information systems managers.
+EOF
+}
+
+
+variable "departament" {
+  type        = string
+  default     = "Security"
+  description = <<EOF
+         a distinct part of anything arranged in divisions; a division of a complex whole or organized system. one of the principal branches of a governmental organization: the sanitation department.
+         EOF
+}
+
+variable "solution_version" {
+  type        = string
+  default     = "1.0.0"
+  description = "Version of solutions stack - example v1.1.1 or v1.0.0-beta"
+
 }

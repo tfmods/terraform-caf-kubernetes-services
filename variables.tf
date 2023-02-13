@@ -1,34 +1,3 @@
-variable "automatic_channel_upgrade" {
-  description = <<EOT
-The upgrade channel for this Kubernetes Cluster.
-Possible values are none, patch, rapid, and stable.
-Cluster Auto-Upgrade will update the Kubernetes Cluster (and it's Node Pools)
-to the latest GA version of Kubernetes automatically.
-Please see [the Azure documentation for more information](https://docs.microsoft.com/en-us/azure/aks/upgrade-cluster#set-auto-upgrade-channel-preview).
-EOT
-  type        = string
-  default     = null
-}
-
-
-variable "api_server_authorized_ip_ranges" {
-  description = "The IP ranges to whitelist for incoming traffic to the masters."
-  type        = list(string)
-  default     = null
-}
-
-variable "disk_encryption_set_id" {
-  description = <<EOT
-(Optional) The ID of the Disk Encryption Set which should be used for the Nodes and Volumes.
-Please see [the documentation](https://docs.microsoft.com/en-us/azure/aks/azure-disk-customer-managed-keys)
-and [disk_encryption_set](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/disk_encryption_set)
-for more information.
-EOT
-  type        = string
-  default     = null
-}
-
-
 
 variable "alw_name" {
   type        = string
@@ -50,10 +19,10 @@ Changing this forces a new resource to be created.
 EOT
   type        = string
 
-  validation {
-    condition     = length(local.naming.aks) >= 1 && length(local.naming.aks) <= 63 && can(regex("^[a-zA-Z0-9][a-zA-Z0-9-_.]+[a-zA-Z0-9]$", local.naming.aks))
-    error_message = "Invalid name (check Azure Resource naming restrictions for more info)."
-  }
+  # validation {
+  #   condition     = length(local.naming.aks) >= 1 && length(local.naming.aks) <= 63 && can(regex("^[a-zA-Z0-9][a-zA-Z0-9-_.]+[a-zA-Z0-9]$", local.naming.aks))
+  #   error_message = "Invalid name (check Azure Resource naming restrictions for more info)."
+  # }
 }
 
 
@@ -62,27 +31,41 @@ EOT
 ####     ===
 
 
-variable "default_node_pool" {
-  type        = map(any)
-  description = <<EOF
-       (Required) A default_node_pool block as defined below
-        
-        name - (Required) The name which should be used for the default Kubernetes Node Pool. Changing this forces a new resource to be created.
+# variable "default_node_pool" {
+#   type        = map(any)
+#   description = <<EOF
+#        (Required) A default_node_pool block as defined below
 
-        vm_size - (Required) The size of the Virtual Machine, such as Standard_DS2_v2. Changing this forces a new resource to be created.
+#         name - (Required) The name which should be used for the default Kubernetes Node Pool. Changing this forces a new resource to be created.
 
-        capacity_reservation_group_id - (Optional) Specifies the ID of the Capacity Reservation Group within which this AKS Cluster should be created. Changing this forces a new resource to be created.
+#         vm_size - (Required) The size of the Virtual Machine, such as Standard_DS2_v2. Changing this forces a new resource to be created.
 
-        custom_ca_trust_enabled - (Optional) Specifies whether to trust a Custom CA.
-        
-        This requires that the Preview Feature Microsoft.ContainerService/CustomCATrustPreview is enabled and the Resource Provider is re-registered, see the documentation for more information.
-        EOF  
+#         capacity_reservation_group_id - (Optional) Specifies the ID of the Capacity Reservation Group within which this AKS Cluster should be created. Changing this forces a new resource to be created.
+
+#         custom_ca_trust_enabled - (Optional) Specifies whether to trust a Custom CA.
+
+#         This requires that the Preview Feature Microsoft.ContainerService/CustomCATrustPreview is enabled and the Resource Provider is re-registered, see the documentation for more information.
+#         EOF  
+# }
+
+variable "log_analytics_workspace_sku" {
+  description = <<EOT
+The SKU (pricing level) of the Log Analytics workspace.
+For new subscriptions the SKU should be set to PerGB2018
+EOT
+  type        = string
+  default     = "PerGB2018"
 }
 
+variable "enable_log_log_analytics_workspace" {
+  type        = bool
+  default     = false
+  description = "Variable to Enable Log analytics to Aks Cluster"
+}
 
 variable "enable_auto_scaling" {
-  type               = "String"
-  descripdescription = <<EOF
+  type        = string
+  description = <<EOF
      (Optional) Should the Kubernetes Auto Scaler be enabled for this Node Pool?
      Note:
      This requires that the type is set to VirtualMachineScaleSets.
@@ -369,14 +352,6 @@ EOT
   default     = null
 }
 
-variable "enable_auto_scaling" {
-  description = <<EOT
-Should the Kubernetes Auto Scaler be enabled for this Node Pool?
-This requires that the type is set to VirtualMachineScaleSets.
-EOT
-  type        = bool
-  default     = false
-}
 
 variable "enable_host_encryption" {
   description = <<EOT
@@ -538,11 +513,11 @@ EOT
   default     = ""
 }
 
-variable "enable_aci_connector_linux" {
-  description = "Is the virtual node addon enabled?"
-  type        = bool
-  default     = false
-}
+# variable "enable_aci_connector_linux" {
+#   description = "Is the virtual node addon enabled?"
+#   type        = bool
+#   default     = false
+# }
 
 variable "aci_connector_linux_subnet_name" {
   description = <<EOT
@@ -609,6 +584,7 @@ variable "enable_azure_active_directory" {
   default     = false
 }
 
+
 variable "rbac_aad_managed" {
   description = <<EOT
 Is the Azure Active Directory integration Managed, meaning that Azure will
@@ -634,4 +610,73 @@ variable "rbac_aad_server_app_secret" {
   description = "The Server Secret of an Azure Active Directory Application."
   type        = string
   default     = null
+}
+
+
+variable "aad_aks_group_ownners" {
+  type        = list(string)
+  description = "AAD Kubernetes Admin group Owners. This users can manipulate users in the aks amin group"
+}
+
+
+variable "create_aad_group" {
+  default     = true
+  description = "definition to create an azure ad group"
+}
+
+
+variable "enable_azurerm_key_vault" {
+  description = "Enable Secret manager azure key vault for Azure Kubernetes Service."
+  type        = string
+  default     = false
+}
+# variable "key_vault_key_id" {
+#   description = "(Required) Identifier of Azure Key Vault key. See key identifier format for more details. When Azure Key Vault key management service is enabled, this field is required and must be a valid key identifier. When enabled is false, leave the field empty."
+#   default = string
+
+# }
+
+# variable "key_vault_network_access" {
+#   description = " (Optional) Network access of the key vault Network access of key vault. The possible values are Public and Private. Public means the key vault allows public access from all networks. Private means the key vault disables public access and enables private link. The default value is Public."
+#   default = string
+# }
+
+variable "purge_protection_enabled" {
+  type        = bool
+  description = "(Optional) Is Purge Protection enabled for this Key Vault? Defaults to false."
+  default     = true
+}
+
+variable "azure_policy_enable" {
+  type        = bool
+  default     = false
+  description = "Boolean value to enable Azure Police over Kubernetes resources"
+}
+
+variable "enable_container_registry" {
+  type        = bool
+  default     = false
+  description = "Value to enable Azure Container Registry to Azure kubernetes Service"
+}
+
+
+variable "vnet_id" {
+
+}
+
+
+# variable "bastion_service_subnet_name" {
+#   description = "Bastion Service Subnet Name"
+#   default = "AzureBastionSubnet"
+# }
+# variable "bastion_service_address_prefixes" {
+#   description = "Bastion Service Address Prefixes"
+#   default = ["10.0.101.0/27"]
+# }
+
+variable "key_vault_secrets_provider_enabled" {
+  type        = bool
+  default     = false
+  description = " (Optional) A key_vault_secrets_provider block as defined below. For more details, please visit Azure Keyvault Secrets Provider for AKS."
+
 }

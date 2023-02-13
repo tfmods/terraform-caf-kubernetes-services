@@ -1,4 +1,4 @@
-locals = {
+locals {
 
   # Resource type	An abbreviation that represents the type of Azure resource or asset. This component is often used as a prefix or suffix in the name. For more information, see Recommended abbreviations for Azure resource types.
   # Examples: rg, vm
@@ -18,16 +18,23 @@ locals = {
   # Region	The Azure region where the resource is deployed.
   # Examples: westus, eastus2, westeu, usva, ustx
 
-  naming = "${var.project}-${var.environment}-${var.location}"
+  naming          = "${var.project}-${var.environment}-${var.location}"
+  aad_group_admin = toset(concat(["var.aad_aks_group_ownners", "data.azuread_client_config.main.object_id"]))
   names = {
-    aks          = "${var.aks_name}-${local.naming}"
-    alw          = "${var.alw_name}-${local.naming}"
-    aad          = "${var.aad_group_name}-${local.naming}"
-    external_aad = "${var.current_aad_group_name}-${local.naming}"
+    aks = "${var.aks_name}${var.project}${var.environment}${var.location}"
+    alw = "${var.alw_name}-${local.naming}"
+    acr = "${var.aks_name}${var.project}${var.environment}${var.location}acr"
+    # aad          = "${var.aad_group_name}-${local.naming}"
+    #external_aad = "${var.current_aad_group_name}-${local.naming}"
   }
 
 }
 
+locals {
+  kv_id = {
+    id = azurerm_key_vault.main[0].id
+  }
+}
 
 locals {
   default_tags = {
