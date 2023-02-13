@@ -1,0 +1,51 @@
+header-from: main.tf
+
+formatter: "markdown table"
+
+sort:
+  enabled: true
+  by: required
+
+content: |
+  # Azure Aks Caf Module
+
+  [[_TOC_]]
+
+  ## Usage Examples
+  ### Simplified structure
+  ``` Go
+  {{ include "example/the-call-of-best-pratices/main.tf" }}
+  ```
+
+  ### Complex structure
+  ``` Go
+  To be created
+  ```
+
+  {{ .Providers }}
+
+  {{ .Resources }}
+
+  {{ .Inputs }}
+
+  {{ .Outputs }}
+
+  ## Would you like to contribute?
+
+  To contribute with this repository you must install [**terraform-docs**](https://terraform-docs.io/user-guide/installation/).
+  Steps:
+    * Clone this repo;
+    * Create a branch;
+    * Prepare your changes;
+    * Commit and tag;
+    * Document your code using `make prepare-readme`;
+    * Push and Pull request,
+  
+  <sub>Questions? let me know: carlos.oliveira@softwareone.com</sub>
+  
+settings:
+  color: true
+  default: true
+  description: true
+  sensitive: true
+  type: true
